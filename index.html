@@ -16,15 +16,23 @@
                 <form onsubmit="return false;">
                     <div class="custom-file mb-3">
                         <input type="file" class="custom-file-input" id="fileUpload">
-                        <label class="custom-file-label" for="fileUpload">Choose file...</label>
+                        <label class="custom-file-label" for="fileUpload">Choose a file...</label>
                     </div>
                     <button type="button" class="btn btn-success" onclick="Upload()" id="upload-btn">Upload</button>
                 </form>
                 <hr>
+                <h4>Data to convert:</h4>
                 <div id="dvExcel" class="table-responsive"></div>
                 <div class="btn-group my-2" role="group">
-                    <button class="btn btn-primary" id="createFile">Create file</button>
-                    <a class="btn btn-secondary mx-2" id="downloadLink" download="stores_contact.txt" style="display: none" class="mx-2">Download</a>
+                    <button class="btn btn-primary" id="convertData">Convert data</button>
+                </div>
+                <hr>
+                <h3>Stores data to Ruby</h3>
+                <div class="form-group">
+                    <textarea class="form-control" id="storesTxtArea" rows="10"></textarea>
+                </div>
+                <div class="btn-group my-2" role="group">
+                    <a class="btn btn-secondary" id="downloadLink" download="stores_contact.txt" style="display: none">Download as a text file</a>
                 </div>
             </div>
         </div>

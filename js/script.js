@@ -38,7 +38,6 @@ function Upload() {
     }
 };
 
-
 //Process Excel uploaded file and create a table to show info on it.
 function ProcessExcel(data) {
     //Read Excel file data
@@ -131,9 +130,13 @@ function ProcessExcel(data) {
         //Join each store element of the array
         var storesToString = stores.join('\n\n');
         
+        //Show store/s into textarea
+        var txtArea = document.getElementById("storesTxtArea");
+        txtArea.value = storesToString;
+
         //Create text file
         var data = new Blob([storesToString], {type: 'text/plain'});
-        
+                
         if (textFile !== null) {
             window.URL.revokeObjectURL(textFile);
         }
@@ -143,9 +146,9 @@ function ProcessExcel(data) {
     }
 
     //Listen to user action to create and download file
-    var createFile = document.getElementById('createFile');
+    var convertData = document.getElementById('convertData');
 
-    createFile.addEventListener('click', function() {
+    convertData.addEventListener('click', function() {
         var downloadLink = document.getElementById('downloadLink');
         downloadLink.href = makeTxtFile(tempData);
         downloadLink.style.display = 'block';
