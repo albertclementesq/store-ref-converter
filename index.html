@@ -15,7 +15,7 @@
                 <div id="alertContainer"></div>
                 <form onsubmit="return false;">
                     <div class="custom-file mb-3">
-                        <input type="file" class="custom-file-input" id="fileUpload">
+                        <input type="file" class="custom-file-input" id="fileUpload" onchange="fileUploaded()">
                         <label class="custom-file-label" for="fileUpload">Choose a file...</label>
                     </div>
                     <button type="button" class="btn btn-success" onclick="Upload()" id="upload-btn">Upload</button>
@@ -29,11 +29,12 @@
                 <hr>
                 <h3>Stores data to Ruby</h3>
                 <div class="form-group">
-                    <textarea class="form-control" id="storesTxtArea" rows="10"></textarea>
+                    <textarea class="form-control" id="storesTxtArea" rows="10" disabled></textarea>
                 </div>
-                <div class="btn-group my-2" role="group">
-                    <a class="btn btn-secondary" id="downloadLink" download="stores_contact.txt" style="display: none">Download as a text file</a>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-secondary mr-2" id="downloadLink" download="stores_contact.txt" style="display: none">Download as a text file</a>
                 </div>
+                
             </div>
         </div>
         

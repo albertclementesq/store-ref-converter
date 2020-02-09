@@ -1,9 +1,23 @@
 var tempData; //Temporary array to store each row of excel
+var uploadMsg = document.querySelector(".custom-file-label"); //selector for text displayed on input
+var fileUpload = document.getElementById('fileUpload'); //file input selector
+
+//Display name of the file in the input file
+function fileUploaded() {
+    var input = fileUpload.files[0];
+    var text = "";
+
+    if (input) {
+        text = fileUpload.value.replace("C:\\fakepath\\", "");
+    } else {
+        text = "Choose a file...";
+    }
+    uploadMsg.textContent = text;
+}
+
 
 //Upload Excel file
 function Upload() {
-    var fileUpload = document.getElementById('fileUpload');
-
     //validate if file is a valid Excel file
     var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
 
@@ -113,12 +127,20 @@ function ProcessExcel(data) {
     var makeTxtFile = function(storesContact) {
         var stores = []; //Array to store entries after that create from it txt file
 
-        //clean each value of object
+        function cleanEmail(email) {
+            var cleaningString = /[^a-zA-Z0-9-_.]/g;
+            var at = email.split("@");
+            var username = at[0].replace(cleaningString, '');
+            var domain = at[1].replace(cleaningString, '');
+
+            return cleanedEmail = username+"@"+domain;
+        }
+        //clean each value of every object
         storesContact.forEach(entry => {
-            var storeRef = entry.store_ref.toString().replace(/[^a-zA-Z0-9-_\s]/g, '');
-            var storeName = entry.store_name.toLowerCase().replace(/[^a-z0-9-\s]/g, '');
-            var storePhone = entry.store_phone.toString().replace(/([^0-9])|(^(\(+34\)))|(\+34)|(^(34))/g, '');
-            var storeEmail = entry.store_email.toLowerCase().replace(/[^a-zA-Z0-9-_.@+]$/, '');
+            var storeRef = entry.store_ref.toString().toLowerCase().replace(/[^a-zA-Z0-9_-\s]/g, '').replace(/(\s)/g, '_').replace(/(-)/g, '_');
+            var storeName = entry.store_name.toString().replace(/[^a-zA-Z0-9-\s]/g, '');
+            var storePhone = entry.store_phone.toString().replace(/([^0-9])/g, '').replace(/(^34)/g, '').replace(/(^0034)/g, '');
+            var storeEmail = cleanEmail(entry.store_email.toLowerCase());
             
             //create final object for Ruby as a simple string
             var storeCreate = `Store.create!(\r\tmerchant: merchant,\r\treference: "${storeRef}",\r\tdata: {"name"=>"${storeName}", "store_phone"=>"${storePhone}", "store_email"=>"${storeEmail}"},\r\town: true)`;
