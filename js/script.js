@@ -1,20 +1,5 @@
 var tempData; //Temporary array to store each row of excel
-var uploadMsg = document.querySelector(".custom-file-label"); //selector for text displayed on input
 var fileUpload = document.getElementById('fileUpload'); //file input selector
-
-//Display name of the file in the input file
-function fileUploaded() {
-    var input = fileUpload.files[0];
-    var text = "";
-
-    if (input) {
-        text = fileUpload.value.replace("C:\\fakepath\\", "");
-    } else {
-        text = "Choose a file...";
-    }
-    uploadMsg.textContent = text;
-}
-
 
 //Upload Excel file
 function Upload() {
@@ -45,10 +30,20 @@ function Upload() {
                 reader.readAsArrayBuffer(fileUpload.files[0]);
             }
         } else {
-            document.getElementById('alertContainer').innerHTML = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>This browser does not support HTML5.<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+            UIkit.notification({
+                message: 'This browser does not support HTML5.',
+                status: 'danger',
+                pos: 'top-center',
+                timeout: 5000
+            });
         }
     } else {
-        document.getElementById('alertContainer').innerHTML = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>Please, upload a valid Excel file.<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+        UIkit.notification({
+            message: 'Please, select a file first!',
+            status: 'warning',
+            pos: 'top-center',
+            timeout: 5000
+        });
     }
 };
 
@@ -65,7 +60,7 @@ function ProcessExcel(data) {
     
     //Create table
     var table = document.createElement('table');
-    table.classList.add('table', 'table-bordered');
+    table.classList.add('uk-table', 'uk-table-striped', 'uk-table-responsive');
     
     //Add a header row
     var thead = document.createElement('thead');
@@ -116,7 +111,6 @@ function ProcessExcel(data) {
     //Create table and append to container
     var dvExcel = document.getElementById('dvExcel');
     dvExcel.innerHTML = '';
-    dvExcel.classList.add('mt-5', 'mb-1');
     dvExcel.appendChild(table);
     tempData = excelRows;
 }
