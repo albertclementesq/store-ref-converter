@@ -1,5 +1,6 @@
 var tempData; //Temporary array to store each row of excel
 var fileUpload = document.getElementById('fileUpload'); //file input selector
+var txtArea = document.getElementById("storesTxtArea");
 
 //Upload Excel file
 function Upload() {
@@ -8,10 +9,9 @@ function Upload() {
 
     if (regex.test(fileUpload.value.toLowerCase())) {
         if (typeof(FileReader) != 'undefined') {
-
             var reader = new FileReader();
 
-            //For browsers that are not IE
+            //Other browsers except IE
             if (reader.readAsBinaryString) {
                 reader.onload = function(e) {
                     ProcessExcel(e.target.result);
@@ -38,8 +38,9 @@ function Upload() {
             });
         }
     } else {
+        
         UIkit.notification({
-            message: 'Please, select a file first!',
+            message: 'Wrong file type or not file selected!',
             status: 'warning',
             pos: 'top-center',
             timeout: 5000
@@ -47,17 +48,8 @@ function Upload() {
     }
 };
 
-//Process Excel uploaded file and create a table to show info on it.
-function ProcessExcel(data) {
-    //Read Excel file data
-    var workbook = XLSX.read(data, {type: 'binary'});
-
-    //Fetch the name of the first sheet
-    var firstSheet = workbook.SheetNames[0];
-
-    //Read all rows from first sheet into a JSON array
-    var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
-    
+//Display excel data on table
+function visualizeData(excelRows) {
     //Create table
     var table = document.createElement('table');
     table.classList.add('uk-table', 'uk-table-striped', 'uk-table-responsive');
@@ -89,9 +81,7 @@ function ProcessExcel(data) {
     var tbody = document.createElement('tbody');
     //Add data from excel file to the table
     for (var index = 0; index < excelRows.length; index++) {
-        //tempData.push(excelRows[index]);
-        //Add data row
-        var row = tbody.insertRow(-1);
+        var row = tbody.insertRow(-1); //Add data row
 
         //Add cells
         var cell = row.insertCell(-1);
@@ -110,10 +100,26 @@ function ProcessExcel(data) {
 
     //Create table and append to container
     var dvExcel = document.getElementById('dvExcel');
-    dvExcel.innerHTML = '';
     dvExcel.appendChild(table);
-    tempData = excelRows;
 }
+
+//Process Excel uploaded file and create a table to show info on it.
+function ProcessExcel(data) {
+    //Read Excel file data
+    var workbook = XLSX.read(data, {type: 'binary'});
+
+    //Fetch the name of the first sheet
+    var firstSheet = workbook.SheetNames[0];
+
+    //Read all rows from first sheet into a JSON array
+    var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+    
+    visualizeData(excelRows); //display data on table
+
+    tempData = excelRows; //store data to create txt file later
+}
+
+
 
 (function () {
     var textFile = null;
@@ -129,6 +135,10 @@ function ProcessExcel(data) {
 
             return cleanedEmail = username+"@"+domain;
         }
+
+
+
+
         //clean each value of every object
         storesContact.forEach(entry => {
             var storeRef = entry.store_ref.toString().toLowerCase().replace(/[^a-zA-Z0-9_-\s]/g, '').replace(/(\s)/g, '_').replace(/(-)/g, '_');
@@ -136,8 +146,8 @@ function ProcessExcel(data) {
             var storePhone = entry.store_phone.toString().replace(/([^0-9])/g, '').replace(/(^34)/g, '').replace(/(^0034)/g, '');
             var storeEmail = cleanEmail(entry.store_email.toLowerCase());
             
-            //create final object for Ruby as a simple string
-            var storeCreate = `Store.create!(\r\tmerchant: merchant,\r\treference: "${storeRef}",\r\tdata: {"name"=>"${storeName}", "store_phone"=>"${storePhone}", "store_email"=>"${storeEmail}"},\r\town: true)`;
+            //create final object string for Ruby as a simple string
+            var storeCreate = `Store.create!(\r\tmerchant: merchant,\r\treference: "${storeRef}",\r\tdata: {"name"=>"${storeName}", "store_phone"=>"${storePhone}", "store_email"=>"${storeEmail}"},\r\town: true\r)`;
             
             //Add string as element to array
             stores.push(storeCreate);
@@ -147,8 +157,7 @@ function ProcessExcel(data) {
         var storesToString = stores.join('\n\n');
         
         //Show store/s into textarea
-        var txtArea = document.getElementById("storesTxtArea");
-        txtArea.value = storesToString;
+        txtArea.innerHTML = storesToString;
 
         //Create text file
         var data = new Blob([storesToString], {type: 'text/plain'});
@@ -163,10 +172,40 @@ function ProcessExcel(data) {
 
     //Listen to user action to create and download file
     var convertData = document.getElementById('convertData');
-
+    var copyLink = document.getElementById('copyLink');
+    var downloadLink = document.getElementById('downloadLink');
+    
     convertData.addEventListener('click', function() {
-        var downloadLink = document.getElementById('downloadLink');
         downloadLink.href = makeTxtFile(tempData);
+        copyLink.style.display = 'block';
         downloadLink.style.display = 'block';
     }, false);
+
+    copyLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        selection = window.getSelection(); 
+        var range = document.createRange();
+        range.selectNodeContents(txtArea);
+        selection.removeAllRanges(); 
+        selection.addRange(range);
+
+        try {
+            document.execCommand("copy");
+            UIkit.notification({
+                message: 'Stores data copied to clipboard successfully.',
+                status: 'success',
+                pos: 'top-center',
+                timeout: 5000
+            });
+        } catch (error) {
+            UIkit.notification({
+                message: 'Stores data couldn\'t be copied to clipboard due to an error. Try again.',
+                status: 'danger',
+                pos: 'top-center',
+                timeout: 5000
+            });
+            console.error(error);
+        }
+        window.getSelection().removeAllRanges();
+    });
 })();
